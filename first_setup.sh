@@ -87,7 +87,7 @@ fi
 # ============================================================
 log_step "STEP 3: キューファイル初期化"
 
-for i in {1..8}; do
+for i in {1..4}; do
     TASK_FILE="$SCRIPT_DIR/queue/tasks/ashigaru${i}.yaml"
     [ ! -f "$TASK_FILE" ] && cat > "$TASK_FILE" << EOF
 task:
@@ -99,9 +99,9 @@ task:
   timestamp: ""
 EOF
 done
-log_info "足軽タスクファイル (1-8) 確認完了"
+log_info "足軽タスクファイル (1-4) 確認完了"
 
-for i in {1..8}; do
+for i in {1..4}; do
     REPORT_FILE="$SCRIPT_DIR/queue/reports/ashigaru${i}_report.yaml"
     [ ! -f "$REPORT_FILE" ] && cat > "$REPORT_FILE" << EOF
 worker_id: ashigaru${i}
@@ -111,7 +111,7 @@ status: idle
 result: null
 EOF
 done
-log_info "足軽レポートファイル (1-8) 確認完了"
+log_info "足軽レポートファイル (1-4) 確認完了"
 
 # ============================================================
 # STEP 4: 実行権限設定

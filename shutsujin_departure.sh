@@ -154,7 +154,7 @@ tmux kill-session -t shogun 2>/dev/null && log_info "  └─ shogun本陣、撤
 # STEP 2: 報告ファイルリセット
 # ═══════════════════════════════════════════════════════════════════════════════
 log_info "📜 前回の軍議記録を破棄中..."
-for i in {1..8}; do
+for i in {1..4}; do
     cat > ./queue/reports/ashigaru${i}_report.yaml << EOF
 worker_id: ashigaru${i}
 task_id: null
@@ -187,26 +187,6 @@ assignments:
     target_path: null
     status: idle
   ashigaru4:
-    task_id: null
-    description: null
-    target_path: null
-    status: idle
-  ashigaru5:
-    task_id: null
-    description: null
-    target_path: null
-    status: idle
-  ashigaru6:
-    task_id: null
-    description: null
-    target_path: null
-    status: idle
-  ashigaru7:
-    task_id: null
-    description: null
-    target_path: null
-    status: idle
-  ashigaru8:
     task_id: null
     description: null
     target_path: null
@@ -283,15 +263,15 @@ log_success "  └─ ダッシュボード初期化完了 (言語: $LANG_SETTIN
 echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 4: multiagentセッション作成（9ペイン：karo + ashigaru1-8）
+# STEP 4: multiagentセッション作成（5ペイン：karo + ashigaru1-4）
 # ═══════════════════════════════════════════════════════════════════════════════
-log_war "⚔️ 家老・足軽の陣を構築中（9名配備）..."
+log_war "⚔️ 家老・足軽の陣を構築中（5名配備）..."
 
 # セッション作成（1ペイン目）
 tmux new-session -d -s multiagent -n "agents"
 
-# 8回分割して合計9ペインを作成
-for _ in {1..8}; do
+# 4回分割して合計5ペインを作成
+for _ in {1..4}; do
     tmux split-window -t multiagent
 done
 
@@ -299,13 +279,13 @@ done
 tmux select-layout -t multiagent tiled
 
 # ペインIDを取得してタイトル設定
-PANE_TITLES=("karo" "ashigaru1" "ashigaru2" "ashigaru3" "ashigaru4" "ashigaru5" "ashigaru6" "ashigaru7" "ashigaru8")
-PANE_COLORS=("1;31" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34")
+PANE_TITLES=("karo" "ashigaru1" "ashigaru2" "ashigaru3" "ashigaru4")
+PANE_COLORS=("1;31" "1;34" "1;34" "1;34" "1;34")
 
 # ペインIDリストを取得
 PANE_IDS=($(tmux list-panes -t multiagent -F '#{pane_id}'))
 
-for i in {0..8}; do
+for i in {0..4}; do
     tmux select-pane -t "${PANE_IDS[$i]}" -T "${PANE_TITLES[$i]}"
     tmux send-keys -t "${PANE_IDS[$i]}" "cd $(pwd) && clear" Enter
 done
@@ -441,10 +421,10 @@ NINJA_EOF
     sleep 0.5
     tmux send-keys -t "${PANE_IDS[0]}" Enter
 
-    # 足軽に指示書を読み込ませる（残り8ペイン）
+    # 足軽に指示書を読み込ませる（残り4ペイン）
     sleep 2
     log_info "  └─ 足軽に指示書を伝達中..."
-    for i in {1..8}; do
+    for i in {1..4}; do
         tmux send-keys -t "${PANE_IDS[$i]}" "instructions/ashigaru.md を読んで役割を理解せよ。汝は足軽${i}号である。"
         sleep 0.3
         tmux send-keys -t "${PANE_IDS[$i]}" Enter
@@ -474,17 +454,17 @@ echo "     ┌──────────────────────
 echo "     │  Pane 0: 将軍 (SHOGUN)      │  ← 総大将・プロジェクト統括"
 echo "     └─────────────────────────────┘"
 echo ""
-echo "     【multiagentセッション】家老・足軽の陣（3x3 = 9ペイン）"
-echo "     ┌─────────┬─────────┬─────────┐"
-echo "     │  karo   │ashigaru3│ashigaru6│"
-echo "     │  (家老) │ (足軽3) │ (足軽6) │"
-echo "     ├─────────┼─────────┼─────────┤"
-echo "     │ashigaru1│ashigaru4│ashigaru7│"
-echo "     │ (足軽1) │ (足軽4) │ (足軽7) │"
-echo "     ├─────────┼─────────┼─────────┤"
-echo "     │ashigaru2│ashigaru5│ashigaru8│"
-echo "     │ (足軽2) │ (足軽5) │ (足軽8) │"
-echo "     └─────────┴─────────┴─────────┘"
+echo "     【multiagentセッション】家老・足軽の陣（5ペイン）"
+echo "     ┌───────────┬───────────┐"
+echo "     │   karo    │ ashigaru1 │"
+echo "     │  (家老)   │  (足軽1)  │"
+echo "     ├───────────┼───────────┤"
+echo "     │ ashigaru2 │ ashigaru3 │"
+echo "     │  (足軽2)  │  (足軽3)  │"
+echo "     ├───────────┴───────────┤"
+echo "     │      ashigaru4        │"
+echo "     │       (足軽4)         │"
+echo "     └───────────────────────┘"
 echo ""
 
 echo ""
@@ -502,7 +482,7 @@ if [ "$SETUP_ONLY" = true ]; then
     echo "  │  tmux send-keys -t shogun 'claude --dangerously-skip-permissions' Enter │"
     echo "  │                                                          │"
     echo "  │  # 家老・足軽を一斉召喚                                   │"
-    echo "  │  for i in {0..8}; do \\                                   │"
+    echo "  │  for i in {0..4}; do \\                                   │"
     echo "  │    tmux send-keys -t multiagent:0.\$i \\                   │"
     echo "  │      'claude --dangerously-skip-permissions' Enter       │"
     echo "  │  done                                                    │"
