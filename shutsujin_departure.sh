@@ -287,34 +287,27 @@ echo ""
 # ═══════════════════════════════════════════════════════════════════════════════
 log_war "⚔️ 家老・足軽の陣を構築中（9名配備）..."
 
-# 最初のペイン作成
+# セッション作成（1ペイン目）
 tmux new-session -d -s multiagent -n "agents"
 
-# 3x3グリッド作成（合計9ペイン）
-# 最初に3列に分割
-tmux split-window -h -t "multiagent:0"
-tmux split-window -h -t "multiagent:0"
+# 8回分割して合計9ペインを作成
+for _ in {1..8}; do
+    tmux split-window -t multiagent
+done
 
-# 各列を3行に分割
-tmux select-pane -t "multiagent:0.0"
-tmux split-window -v
-tmux split-window -v
+# タイル状に均等配置
+tmux select-layout -t multiagent tiled
 
-tmux select-pane -t "multiagent:0.3"
-tmux split-window -v
-tmux split-window -v
-
-tmux select-pane -t "multiagent:0.6"
-tmux split-window -v
-tmux split-window -v
-
-# ペインタイトル設定（0: karo, 1-8: ashigaru1-8）
+# ペインIDを取得してタイトル設定
 PANE_TITLES=("karo" "ashigaru1" "ashigaru2" "ashigaru3" "ashigaru4" "ashigaru5" "ashigaru6" "ashigaru7" "ashigaru8")
-PANE_COLORS=("1;31" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34")  # karo: 赤, ashigaru: 青
+PANE_COLORS=("1;31" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34" "1;34")
+
+# ペインIDリストを取得
+PANE_IDS=($(tmux list-panes -t multiagent -F '#{pane_id}'))
 
 for i in {0..8}; do
-    tmux select-pane -t "multiagent:0.$i" -T "${PANE_TITLES[$i]}"
-    tmux send-keys -t "multiagent:0.$i" "cd $(pwd) && export PS1='(\[\033[${PANE_COLORS[$i]}m\]${PANE_TITLES[$i]}\[\033[0m\]) \[\033[1;32m\]\w\[\033[0m\]\$ ' && clear" Enter
+    tmux select-pane -t "${PANE_IDS[$i]}" -T "${PANE_TITLES[$i]}"
+    tmux send-keys -t "${PANE_IDS[$i]}" "cd $(pwd) && clear" Enter
 done
 
 log_success "  └─ 家老・足軽の陣、構築完了"
@@ -326,7 +319,9 @@ echo ""
 log_war "👑 将軍の本陣を構築中..."
 tmux new-session -d -s shogun
 tmux send-keys -t shogun "cd $(pwd) && export PS1='(\[\033[1;35m\]将軍\[\033[0m\]) \[\033[1;32m\]\w\[\033[0m\]\$ ' && clear" Enter
-tmux select-pane -t shogun:0.0 -P 'bg=#002b36'  # 将軍の Solarized Dark
+# 将軍ペインの背景色設定（base-indexに依存しない方法）
+SHOGUN_PANE=$(tmux list-panes -t shogun -F '#{pane_id}' | head -1)
+tmux select-pane -t "$SHOGUN_PANE" -P 'bg=#002b36'  # 将軍の Solarized Dark
 
 log_success "  └─ 将軍の本陣、構築完了"
 echo ""
@@ -345,10 +340,11 @@ if [ "$SETUP_ONLY" = false ]; then
     # 少し待機（安定のため）
     sleep 1
 
-    # 家老 + 足軽（9ペイン）
-    for i in {0..8}; do
-        tmux send-keys -t "multiagent:0.$i" "claude --dangerously-skip-permissions"
-        tmux send-keys -t "multiagent:0.$i" Enter
+    # 家老 + 足軽（9ペイン）- ペインIDで参照
+    PANE_IDS=($(tmux list-panes -t multiagent -F '#{pane_id}'))
+    for pane_id in "${PANE_IDS[@]}"; do
+        tmux send-keys -t "$pane_id" "claude --dangerously-skip-permissions"
+        tmux send-keys -t "$pane_id" Enter
     done
     log_info "  └─ 家老・足軽、召喚完了"
 
@@ -435,20 +431,23 @@ NINJA_EOF
     sleep 0.5
     tmux send-keys -t shogun Enter
 
-    # 家老に指示書を読み込ませる
+    # ペインIDリストを再取得
+    PANE_IDS=($(tmux list-panes -t multiagent -F '#{pane_id}'))
+
+    # 家老に指示書を読み込ませる（最初のペイン）
     sleep 2
     log_info "  └─ 家老に指示書を伝達中..."
-    tmux send-keys -t "multiagent:0.0" "instructions/karo.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${PANE_IDS[0]}" "instructions/karo.md を読んで役割を理解せよ。"
     sleep 0.5
-    tmux send-keys -t "multiagent:0.0" Enter
+    tmux send-keys -t "${PANE_IDS[0]}" Enter
 
-    # 足軽に指示書を読み込ませる（1-8）
+    # 足軽に指示書を読み込ませる（残り8ペイン）
     sleep 2
     log_info "  └─ 足軽に指示書を伝達中..."
     for i in {1..8}; do
-        tmux send-keys -t "multiagent:0.$i" "instructions/ashigaru.md を読んで役割を理解せよ。汝は足軽${i}号である。"
+        tmux send-keys -t "${PANE_IDS[$i]}" "instructions/ashigaru.md を読んで役割を理解せよ。汝は足軽${i}号である。"
         sleep 0.3
-        tmux send-keys -t "multiagent:0.$i" Enter
+        tmux send-keys -t "${PANE_IDS[$i]}" Enter
         sleep 0.5
     done
 
