@@ -1,1 +1,47 @@
-queue: []
+queue:
+  - id: cmd_001
+    timestamp: "2026-02-01T01:17:28"
+    command: "OAuth 2.0 クライアントサーバを実務レベルで構築せよ"
+    project: oauth-client-server
+    priority: high
+    status: in_progress
+    context:
+      language: "TypeScript/Node.js"
+      framework: "Express または Hono（家老の判断に任せる）"
+      oauth_flow: "Authorization Code + PKCE"
+      auth_server: "仮の認可サーバ設定を使用"
+      purpose: "学習目的だが実務レベルの品質を求む"
+    requirements:
+      - "PKCE（code_verifier, code_challenge）の実装"
+      - "state パラメータによる CSRF 対策"
+      - "トークンの安全な保存（HttpOnly Cookie 推奨）"
+      - "リフレッシュトークンによるトークン更新"
+      - "セッション管理"
+      - "ログアウト処理"
+      - "エラーハンドリング"
+    deliverables:
+      - "プロジェクト初期構成（package.json, tsconfig.json 等）"
+      - "OAuth クライアント実装"
+      - "テスト用のサンプルページ"
+      - "README.md（セットアップ手順、認可サーバとの連携方法）"
+    mock_auth_server:
+      authorization_endpoint: "http://localhost:8080/authorize"
+      token_endpoint: "http://localhost:8080/token"
+      userinfo_endpoint: "http://localhost:8080/userinfo"
+      client_id: "demo-client"
+      client_secret: "demo-secret"
+      redirect_uri: "http://localhost:3000/callback"
+      scopes: "openid profile email"
+    note: "殿より仮データで進めてよいとの指示あり"
+
+  - id: cmd_001_update
+    timestamp: "2026-02-01T01:20:11"
+    command: "追加指示：仮の認可サーバ設定で進めよ"
+    parent_id: cmd_001
+    priority: high
+    status: pending
+    message: |
+      殿より「一旦仮のデータでいい」との仰せ。
+      上記 mock_auth_server の設定を使用して実装を進めよ。
+      後で殿の実際の認可サーバに差し替えられるよう、
+      環境変数で設定可能な構成にすること。

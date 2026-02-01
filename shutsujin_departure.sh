@@ -9,6 +9,10 @@
 
 set -e
 
+# tmuxセッション内から実行されている場合、TMUX変数をアンセット
+# これによりネストの問題を回避
+unset TMUX
+
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -267,8 +271,8 @@ echo ""
 # ═══════════════════════════════════════════════════════════════════════════════
 log_war "⚔️ 家老・足軽の陣を構築中（5名配備）..."
 
-# セッション作成（1ペイン目）
-tmux new-session -d -s multiagent -n "agents"
+# セッション作成（1ペイン目）- サイズを明示的に指定
+tmux new-session -d -s multiagent -n "agents" -x 200 -y 50
 
 # 4回分割して合計5ペインを作成
 for _ in {1..4}; do
@@ -297,7 +301,7 @@ echo ""
 # STEP 5: shogunセッション作成（1ペイン）
 # ═══════════════════════════════════════════════════════════════════════════════
 log_war "👑 将軍の本陣を構築中..."
-tmux new-session -d -s shogun
+tmux new-session -d -s shogun -x 200 -y 50
 tmux send-keys -t shogun "cd $(pwd) && export PS1='(\[\033[1;35m\]将軍\[\033[0m\]) \[\033[1;32m\]\w\[\033[0m\]\$ ' && clear" Enter
 # 将軍ペインの背景色設定（base-indexに依存しない方法）
 SHOGUN_PANE=$(tmux list-panes -t shogun -F '#{pane_id}' | head -1)

@@ -1,3 +1,7 @@
-projects: []
+projects:
+  - name: oauth-client-server
+    path: "~/ghq/github.com/yugo-ibuki/oauth-client-server"
+    description: "OAuth 2.0 クライアントサーバ（TypeScript/Node.js）- Authorization Code + PKCE フロー"
+    status: active
 
-current_project: null
+current_project: oauth-client-server
