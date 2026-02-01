@@ -598,6 +598,44 @@ tmux kill-session -t multiagent
 
 </details>
 
+<details>
+<summary><b>Context Switch (Multi-Project)</b> (Click to expand)</summary>
+
+Run multiple projects with shogun in parallel using `shogun_context.sh`:
+
+```bash
+# Save current project state
+./shogun_context.sh save oauth-client
+
+# Reset to clean state
+./shogun_context.sh reset
+
+# Create new worktree for parallel development
+./shogun_context.sh worktree ../multi-agent-shogun-projectB
+
+# Restore saved state
+./shogun_context.sh restore oauth-client
+```
+
+**Workflow: Parallel Development**
+```
+1. ./shogun_context.sh save projectA        # Save current state
+2. ./shogun_context.sh reset                # Clean slate
+3. ./shogun_context.sh worktree ../shogun2  # New worktree
+4. ./shogun_context.sh restore projectA     # Restore original
+→ Two shogun instances running in parallel!
+```
+
+**Workflow: Reuse Worktree**
+```
+1. (in worktree) ./shogun_context.sh reset      # Clear finished project
+2. (in worktree) ./shogun_context.sh restore X  # Load different project
+```
+
+Saved projects are stored in `repositories/`. Check with `ls repositories/`.
+
+</details>
+
 ---
 
 ## 📁 File Structure

@@ -617,6 +617,44 @@ alias csm='tmux attach-session -t multiagent'
 
 </details>
 
+<details>
+<summary><b>コンテキスト切り替え（複数プロジェクト）</b>（クリックで展開）</summary>
+
+`shogun_context.sh` で複数プロジェクトを並行して動かせます：
+
+```bash
+# 現在のプロジェクト状態を保存
+./shogun_context.sh save oauth-client
+
+# クリーン状態にリセット
+./shogun_context.sh reset
+
+# 並行開発用の新しい worktree を作成
+./shogun_context.sh worktree ../multi-agent-shogun-projectB
+
+# 保存した状態を復元
+./shogun_context.sh restore oauth-client
+```
+
+**ワークフロー: 並行開発**
+```
+1. ./shogun_context.sh save projectA        # 状態を保存
+2. ./shogun_context.sh reset                # リセット
+3. ./shogun_context.sh worktree ../shogun2  # 新しい worktree
+4. ./shogun_context.sh restore projectA     # 元の環境を復元
+→ 2つの shogun を並行して動かせる！
+```
+
+**ワークフロー: worktree 再利用**
+```
+1. (worktree側で) ./shogun_context.sh reset      # 完了プロジェクトをクリア
+2. (worktree側で) ./shogun_context.sh restore X  # 別プロジェクトを復元
+```
+
+保存済みプロジェクトは `repositories/` に格納されます。`ls repositories/` で確認できます。
+
+</details>
+
 ---
 
 ## 📁 ファイル構成
